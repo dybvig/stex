@@ -5,6 +5,7 @@
 ;;; fixbibtex removes the line breaks inserted by bibtex, sometimes
 ;;; in the middle of tex commands or urls.
 
+(import (chezscheme))
 (unless (= (length (command-line-arguments)) 1)
   (printf "usage: fixbibtex <filename>\n")
   (exit 1))
