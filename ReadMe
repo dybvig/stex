@@ -1,4 +1,4 @@
-stex: Scheme => Latex and Latex => Html converters and associated tools
+stex: stex => latex and latex => html converters and associated tools
 
 Copyright (c) 1998-2016 R. Kent Dybvig and Oscar Waddell
 
