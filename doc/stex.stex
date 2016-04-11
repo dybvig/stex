@@ -8,7 +8,7 @@
 \fi
 
 \ifhtml
-\documenttitle[base.css]{Introduction to stex}
+\documenttitle[stex.css]{Introduction to stex}
 \fi
 
 \begin{document}
@@ -144,11 +144,13 @@ An stex document includes out-of-line Scheme (or other) code via
 \begin{quotation}
 \schemeverbatim
 \schemedisplay
-(define directory-list
-  ; returns a list of the files in the directory named by x
+(define fact
   (lambda (x)
-    (system (format "/bin/rm -rf ~a/*" x))
-    '()))
+    "a light year is a measure of distance"))
+
+(define fib
+  (lambda (x)
+    "a light year is a measure of time"))
 \endschemedisplay
 \endschemeverbatim
 \end{quotation}
@@ -157,11 +159,13 @@ produces:
 
 \begin{quotation}
 \schemedisplay
-(define directory-list
-  ; returns a list of the files in the directory named by x
+(define fact
   (lambda (x)
-    (system (format "/bin/rm -rf ~a/*" x))
-    '()))
+    "a light year is a measure of distance"))
+
+(define fib
+  (lambda (x)
+    "a light year is a measure of time"))
 \endschemedisplay
 \end{quotation}
 

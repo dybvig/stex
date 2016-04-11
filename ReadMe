@@ -35,6 +35,5 @@ April 2016:
   ReadMe             this file
   sbin/              helper scripts
   src/               stex sources
-  stex.pdf           pdf form of the stex overview
 
-See stex.pdf for a brief overview of stex and how to use it.
+See doc/stex.html for a brief overview of stex and how to use it.
