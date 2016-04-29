@@ -1,4 +1,4 @@
-#! /usr/bin/petite --script
+#! /usr/bin/petite --program
 
 ;;; fixbibtex.ss
 

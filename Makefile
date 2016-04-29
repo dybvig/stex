@@ -1,12 +1,12 @@
 VERSION=1.1
 
-# location of scheme or petite executable
+# location of scheme executable
 BIN=/usr/bin
 
 # target location for stex
 LIB=/usr/lib/stex$(VERSION)
 
-Scheme = $(shell if [ -e $(BIN)/scheme ]; then echo $(BIN)/scheme; else echo $(BIN)/petite; fi)
+Scheme = $(BIN)/scheme
 m := $(shell echo '(machine-type)' | $(Scheme) -q)
 
 Install=./sbin/install
@@ -17,32 +17,20 @@ all: $(exec)
 
 $m/scheme-prep: src/dsm.ss src/preplib.ss src/scheme-prep.ss
 	if [ ! -d $m ] ; then mkdir $m ; fi
-	sed -e 's;^#! /usr/bin/petite --program;#! $(Scheme) --program;' src/scheme-prep.ss > $m/scheme-prep.ss
-ifeq "$(Scheme)" "$(BIN)/scheme"
+	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/scheme-prep.ss > $m/scheme-prep.ss
 	echo '(reset-handler abort) (source-directories (quote ("src"))) (compile-program "$m/scheme-prep.ss" "$m/scheme-prep")' | $(Scheme) -q
-else
-	echo '(reset-handler abort) (source-directories (quote ("src"))) (expand-script "$m/scheme-prep.ss" "$m/scheme-prep")' | $(Scheme) -q expand-script.ss
-endif
 	chmod 711 $m/scheme-prep
 
 $m/html-prep: src/dsm.ss src/preplib.ss src/html-prep.ss
 	if [ ! -d $m ] ; then mkdir $m ; fi
-	sed -e 's;^#! /usr/bin/petite --program;#! $(Scheme) --program;' src/html-prep.ss > $m/html-prep.ss
-ifeq "$(Scheme)" "$(BIN)/scheme"
+	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/html-prep.ss > $m/html-prep.ss
 	echo '(reset-handler abort) (source-directories (quote ("src")))(compile-program "$m/html-prep.ss" "$m/html-prep")' | $(Scheme) -q
-else
-	echo '(reset-handler abort) (source-directories (quote ("src")))(expand-script "$m/html-prep.ss" "$m/html-prep")' | $(Scheme) -q expand-script.ss
-endif
 	chmod 711 $m/html-prep
 
 $m/fixbibtex: src/fixbibtex.ss
 	-if [ ! -d $m ] ; then mkdir $m ; fi
-	sed -e 's;^#! /usr/bin/petite --program;#! $(Scheme) --program;' src/fixbibtex.ss > $m/fixbibtex.ss
-ifeq "$(Scheme)" "$(BIN)/scheme"
+	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/fixbibtex.ss > $m/fixbibtex.ss
 	echo '(reset-handler abort) (source-directories (quote ("src")))(compile-program "$m/fixbibtex.ss" "$m/fixbibtex")' | $(Scheme) -q
-else
-	echo '(reset-handler abort) (source-directories (quote ("src")))(expand-script "$m/fixbibtex.ss" "$m/fixbibtex")' | $(Scheme) -q expand-script.ss
-endif
 	chmod 755 $m/fixbibtex
 
 install: $(exec)
