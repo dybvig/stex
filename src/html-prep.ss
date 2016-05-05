@@ -1,5 +1,4 @@
-#! /usr/bin/petite --program
-#!chezscheme
+#! /usr/bin/scheme --program
 
 ;;; html-prep.ss
 ;;;
@@ -128,22 +127,20 @@
 ;;;   that supports this extension (with the -d [allow delimited special
 ;;;   chars] flag) is available here as well.
 
-(import (except (chezscheme) open-input-file))
-(include "dsm.ss")
-(include "preplib.ss")
-(include "script.ss")
+#!chezscheme
+(import (except (chezscheme) open-input-file) (dsm) (preplib) (script))
 
 (define math-directory (make-parameter "math"))
 
 (define push-ofile
   (lambda (op ofiles)
-    (set! current-ofile op)
+    (current-ofile op)
     (cons op ofiles)))
 
 (define pop-ofile
   (lambda (ofiles)
     (let ([ofiles (cdr ofiles)])
-      (set! current-ofile (and (not (null? ofiles)) (car ofiles)))
+      (current-ofile (and (not (null? ofiles)) (car ofiles)))
       ofiles)))
 
 (define get-counter-value
@@ -175,17 +172,17 @@
     (define next-count
       (lambda (root)
         (cond
-          [(assoc root output-file-counters) =>
+          [(assoc root (output-file-counters)) =>
            (lambda (a)
              (let ([n (+ (cdr a) 1)])
                (set-cdr! a n)
                n))]
           [else
-           (set! output-file-counters
-             (cons (cons root 0) output-file-counters))
+           (output-file-counters
+             (cons (cons root 0) (output-file-counters)))
            0])))
     ; generate sequence of names foo.html, foo_1.html, foo_2.html, ...
-    (let ([op (let ([fn (let ([root (path-root (port-name current-ifile))])
+    (let ([op (let ([fn (let ([root (path-root (port-name (current-ifile)))])
                           (let ([n (next-count root)])
                             (if (= n 0)
                                 (format "~a.html" root)
@@ -196,10 +193,10 @@
       (fprintf op "<!-- Edit the .tex version instead-->~%~%")
       (fprintf op "<html>~%")
       (fprintf op "<head>~%<title>~a</title>~%" title)
-      (when header-stuff (display header-stuff op))
-      (when style-sheet
+      (when (header-stuff) (display (header-stuff) op))
+      (when (style-sheet)
         (fprintf op "<link href=\"~a\" rel=\"stylesheet\" type=\"text/css\">\n"
-          style-sheet))
+          (style-sheet)))
       (fprintf op "</head>~%<body>~%")
       op)))
 
@@ -230,7 +227,7 @@
 (define read-aux-file
   (lambda (fn)
     (let ([ip (open-input-file fn)])
-      (fluid-let ([current-ifile ip])
+      (parameterize ([current-ifile ip])
         (let loop ([newline? #f])
           (state-case (c (read-char ip))
             [(#\newline) (loop #t)]
@@ -437,7 +434,7 @@
 \\end{document}
 ")
     (cond
-      [(assoc s latex-cache) =>
+      [(assoc s (latex-cache)) =>
        (lambda (a)
          (fprintf op "<img src=\"~a\" alt=\"<graphic>\">" (cdr a)))]
       [else
@@ -445,7 +442,7 @@
               [texfn (format "~a.tex" fn)]
               [giffn (format "~a.gif" fn)])
          (fprintf op "<img src=\"~a\" alt=\"<graphic>\">" giffn)
-         (set! latex-cache (cons (cons s (format "~a" giffn)) latex-cache))
+         (latex-cache (cons (cons s (format "~a" giffn)) (latex-cache)))
         ; don't rewrite file unless different to avoid need to remake gif file
          (let ([s (format "~a~a~a" latex-header s latex-trailer)])
            (unless (guard (c [else #f])
@@ -461,13 +458,13 @@
 
 (define haux-put-label
   (lambda (label type url)
-    (write `(putprop ',label ',type ,url) haux-op)
-    (newline haux-op)))
+    (write `(putprop ',label ',type ,url) (haux-op))
+    (newline (haux-op))))
 
 (define current-ofile-name
   (lambda ()
-    (if current-ofile
-        (port-name current-ofile)
+    (if (current-ofile)
+        (port-name (current-ofile))
         "nofile")))
 
 (define slabel
@@ -476,9 +473,9 @@
     [(label text tag)
      (let ([url (format "~a#~a" (current-ofile-name) tag)])
        (haux-put-label label 'pageref-url url)
-       (when current-ref-label
-         (haux-put-label label 'ref (car current-ref-label))
-         (haux-put-label label 'ref-url (cdr current-ref-label))))
+       (when (current-ref-label)
+         (haux-put-label label 'ref (car (current-ref-label)))
+         (haux-put-label label 'ref-url (cdr (current-ref-label)))))
      (format "<a name=\"~a\">~a</a>" tag text)]))
 
 (define sindex
@@ -497,9 +494,9 @@
               [texts (map cdr levels)]
               [pageno (get-label lab 'pageref)]
               [url (get-label lab 'pageref-url)])
-          (set! index-entries
+          (index-entries
             (cons (make-index-entry url keys texts pageno page-format "")
-                  index-entries)))))))
+                  (index-entries))))))))
 
 (define smakeindex
   ; insert indexspace between letters?
@@ -574,13 +571,13 @@
                 '=))))
     (guard (c [else #f])
       (let ([seed-entries (call-with-port (open-input-file "in.hidx") read)])
-        (set! index-entries (append seed-entries index-entries))))
+        (index-entries (append seed-entries (index-entries)))))
     (parameterize ([print-vector-length #f])
       (let ([out.hidx (open-output-file "out.hidx" 'replace)])
         (fprintf out.hidx "(~%") ;)
         (for-each
           (lambda (x) (fprintf out.hidx "~s~%" x))
-          index-entries) ;(
+          (index-entries)) ;(
         (fprintf out.hidx ")~%")))
     (fprintf op "\\begin{theindex}~%")
     (let ([ls (sort (lambda (x y)
@@ -625,7 +622,7 @@
                                 [(>) #f]
                                 [else (f (cdr xkeys) (cdr xtexts)
                                          (cdr ykeys) (cdr ytexts))])])])))
-                    index-entries)])
+                    (index-entries))])
       (let loop ([ls (remove-dups ls)] [last-texts '()])
         (unless (null? ls)
           (let* ([entry (car ls)] [texts (index-entry-texts entry)])
@@ -1081,23 +1078,16 @@
 
 ;-----------------------------------------------------------------------
 
-;;; global constants
-(define genlab-prefix "h")  ; unique string for this processor
-
-;;; global variables
-(define header-stuff)
-(define style-sheet)
-(define current-entry-label) ; set to (pageno . url) by entryheader
-(define current-ifile) ; for genlab, input-error, open-html-file
-(define current-ofile) ; for slabel
-(define current-ref-label)
-(define document-title)
-(define index-entries)
-(define genlab-counters)
-(define latex-cache)
-(define output-file-counters)
-(define haux-op)
-(define jobname)
+(define header-stuff (make-parameter #f))
+(define style-sheet (make-parameter #f))
+(define current-ofile (make-parameter #f)) ; for slabel
+(define current-ref-label (make-parameter #f))
+(define document-title (make-parameter #f))
+(define index-entries (make-parameter #f))
+(define latex-cache (make-parameter #f))
+(define output-file-counters (make-parameter #f))
+(define haux-op (make-parameter #f))
+(define jobname (make-parameter #f))
 
 (define go
   (lambda (fn)
@@ -1122,39 +1112,41 @@
                (let ([p (make-output-port handler (make-string len))])
                  p))))
         (make-bit-sink-port)))
-    (set! jobname fn)
+    (jobname fn)
     (let ([ip (open-input-file (tex-file-name fn))])
-      (fluid-let ([header-stuff #f]
-                  [style-sheet #f]
-                  [current-entry-label #f]
-                  [current-ifile #f]
-                  [current-ofile #f]
-                  [current-ref-label #f]
-                  [document-title "Untitled Document"]
-                  [index-entries '()]
-                  [genlab-counters '()]
-                  [latex-cache '()]
-                  [output-file-counters '()]
-                  [haux-op bit-sink])
-        (P s0
-          ([ip ip]
-           [op bit-sink]
-           [def-env '()]
-           [pending '(top)]
-           [groups '(top)]
-           [ips '()]
-           [ops '()]
-           [ifiles (push-ifile ip '())]
-           [ofiles '()]
-           [rawfiles '()]
-           [hard-spaces #f]
-           [eofconts (list s0)]
-           [undos (list '())]
-           [column #f]   ; need flow-sensitive static analysis
-           [columns '()]
-           [colfmt #f]   ; need flow-sensitive static analysis
-           [colfmts '()]
-           [convert-quotes #t]))))))
+      ; preplib parameters
+      (parameterize ([current-ifile #f]
+                     [genlab-prefix "h"]
+                     [genlab-counters '()])
+        ; local parameters
+        (parameterize ([header-stuff #f]
+                       [style-sheet #f]
+                       [current-ofile #f]
+                       [current-ref-label #f]
+                       [document-title "Untitled Document"]
+                       [index-entries '()]
+                       [latex-cache '()]
+                       [output-file-counters '()]
+                       [haux-op bit-sink])
+          (P s0
+            ([ip ip]
+             [op bit-sink]
+             [def-env '()]
+             [pending '(top)]
+             [groups '(top)]
+             [ips '()]
+             [ops '()]
+             [ifiles (push-ifile ip '())]
+             [ofiles '()]
+             [rawfiles '()]
+             [hard-spaces #f]
+             [eofconts (list s0)]
+             [undos (list '())]
+             [column #f]   ; need flow-sensitive static analysis
+             [columns '()]
+             [colfmt #f]   ; need flow-sensitive static analysis
+             [colfmts '()]
+             [convert-quotes #t])))))))
 
 (global-def def
   (P lambda ()
@@ -1315,7 +1307,7 @@
 
 (global-def jobname
   (P lambda ()
-    (display jobname op)
+    (display (jobname) op)
     (P s0)))
 
 (global-def newif
@@ -1406,7 +1398,7 @@
       (P process-string () (format "\\the~a" counter)
         (P lambda (s)
           (let ([tag (gensym)])
-            (set! current-ref-label
+            (current-ref-label
               (cons s (format "~a#~a" (current-ofile-name) tag)))
             (fprintf op "<a name=\"~a\"></a>" tag))
           (P s0))))))
@@ -1791,10 +1783,10 @@
           (read-aux-file (format "~a.aux" root)))
         (guard (c [else (warningf #f "missing or incomplete haux file")])
           (load hauxfn))
-        (set! haux-op (open-output-file hauxfn 'replace))))
+        (haux-op (open-output-file hauxfn 'replace))))
     (P s0
       ([ip (open-input-string
-             (format "\\openhtmlfile{\\raw{~a}}" document-title))]
+             (format "\\openhtmlfile{\\raw{~a}}" (document-title)))]
        [ips (cons ip ips)]
        [eofconts (cons s0 eofconts)]))))
 
@@ -1808,7 +1800,7 @@
 
 (global-def headerstuff
   (P lambda ()
-    (set! header-stuff (read-bracketed-text ip))
+    (header-stuff (read-bracketed-text ip))
     (P s0)))
 
 (global-def documenttitle
@@ -1817,8 +1809,8 @@
       (P process-string () (read-bracketed-text ip)
         (P lambda (title)
           (global-def thetitle (P lambda () (display title op) (P s0)))
-          (set! style-sheet fmt)
-          (set! document-title title)
+          (style-sheet fmt)
+          (document-title title)
           (P s0))))))
 
 (global-def |{|
@@ -1939,14 +1931,12 @@
 
 (populate-source-directories)
 
-(let ()
-  (import %script)
-  (command-line-case (command-line)
-    [((keyword --help)) (usage)]
-    [((flags [--mathdir mathdir $ (math-directory mathdir)])
-      filename* ...)
-     (for-each go
-       (let ([found (find-filename "html-prep.tex")])
-         (if found
-             (cons found filename*)
-             filename*)))]))
+(command-line-case (command-line)
+  [((keyword --help)) (usage)]
+  [((flags [--mathdir mathdir $ (math-directory mathdir)])
+    filename* ...)
+   (for-each go
+     (let ([found (find-filename "html-prep.tex")])
+       (if found
+           (cons found filename*)
+           filename*)))])

@@ -1,12 +1,14 @@
-VERSION=1.1
+VERSION=1.2
 
-# location of scheme executable
-BIN=/usr/bin
+# override PREFIX, Scheme, and LIB as necessary
+PREFIX=/usr
+
+# scheme executable
+Scheme=$(PREFIX)/bin/scheme
 
 # target location for stex
-LIB=/usr/lib/stex$(VERSION)
+LIB=$(PREFIX)/lib/stex$(VERSION)
 
-Scheme = $(BIN)/scheme
 m := $(shell echo '(machine-type)' | $(Scheme) -q)
 
 Install=./sbin/install
@@ -15,22 +17,22 @@ exec = $m/scheme-prep $m/html-prep $m/fixbibtex
 
 all: $(exec)
 
-$m/scheme-prep: src/dsm.ss src/preplib.ss src/scheme-prep.ss
+$m/scheme-prep: src/dsm.ss src/preplib.ss src/script.ss src/scheme-prep.ss
 	if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/scheme-prep.ss > $m/scheme-prep.ss
-	echo '(reset-handler abort) (source-directories (quote ("src"))) (compile-program "$m/scheme-prep.ss" "$m/scheme-prep")' | $(Scheme) -q
-	chmod 711 $m/scheme-prep
+	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/scheme-prep.ss") (compile-whole-program "$m/scheme-prep.wpo" "$m/scheme-prep")' | $(Scheme) -q
+	chmod 755 $m/scheme-prep
 
-$m/html-prep: src/dsm.ss src/preplib.ss src/html-prep.ss
+$m/html-prep: src/dsm.ss src/preplib.ss src/script.ss src/html-prep.ss
 	if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/html-prep.ss > $m/html-prep.ss
-	echo '(reset-handler abort) (source-directories (quote ("src")))(compile-program "$m/html-prep.ss" "$m/html-prep")' | $(Scheme) -q
-	chmod 711 $m/html-prep
+	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/html-prep.ss") (compile-whole-program "$m/html-prep.wpo" "$m/html-prep")' | $(Scheme) -q
+	chmod 755 $m/html-prep
 
 $m/fixbibtex: src/fixbibtex.ss
 	-if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/fixbibtex.ss > $m/fixbibtex.ss
-	echo '(reset-handler abort) (source-directories (quote ("src")))(compile-program "$m/fixbibtex.ss" "$m/fixbibtex")' | $(Scheme) -q
+	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/fixbibtex.ss") (compile-whole-program "$m/fixbibtex.wpo" "$m/fixbibtex")' | $(Scheme) -q
 	chmod 755 $m/fixbibtex
 
 install: $(exec)

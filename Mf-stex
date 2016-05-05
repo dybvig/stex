@@ -1,17 +1,32 @@
-VERSION=1.2
-LIB=$(HOME)/stex
-Petite=petite
+# Mf-stex expects to be included in a make file that defines:
+#  Scheme   the path of the Chez Scheme executable
+#  STEXLIB  the path to the stex library (the library containing this file)
 
-TEXINPUTS:=.:$(LIB)/inputs:
+m := $(shell echo '(machine-type)' | $(Scheme) -q)
+
+TEXINPUTS:=.:$(STEXLIB)/inputs:
 export TEXINPUTS
  
-m := $(shell echo '(machine-type)' | $(Petite) -q)
+ifeq ($(wildcard $(STEXLIB)/$m/scheme-prep),)
+  Sprep = $(Scheme) --libdirs "$(STEXLIB)/src" --program $(STEXLIB)/src/scheme-prep.ss
+else
+  Sprep = $(STEXLIB)/$m/scheme-prep
+endif
+
+ifeq ($(wildcard $(STEXLIB)/$m/html-prep),)
+  Hprep = $(Scheme) --libdirs "$(STEXLIB)/src" --program $(STEXLIB)/src/html-prep.ss
+else
+  Hprep = $(STEXLIB)/$m/html-prep
+endif
+
+ifeq ($(wildcard $(STEXLIB)/$m/fixbibtex),)
+  fixbibtex = $(Scheme) --libdirs "$(STEXLIB)/src" --program $(STEXLIB)/src/fixbibtex.ss
+else
+  fixbibtex = $(STEXLIB)/$m/fixbibtex
+endif
 
 mathdir=math/$(x)
 mathfiles=$(mathdir)/mathfiles
-Sprep = $(LIB)/$m/scheme-prep
-Hprep = $(LIB)/$m/html-prep --mathdir $(mathdir)
-fixbibtex = $(LIB)/$m/fixbibtex
 
 # solaris /bin/sh doesn't support '!' in test
 SHELL=bash
@@ -93,28 +108,28 @@ $(x).mathrun: gifs $(mathfiles)
 	touch $(x).mathrun
 
 gifs:
-	(cd $(LIB); tar -cf - gifs) | tar -xpf -
+	(cd $(STEXLIB); tar -cf - gifs) | tar -xpf -
 
 math:
-	(cd $(LIB); tar -cf - math) | tar -xpf -
+	(cd $(STEXLIB); tar -cf - math) | tar -xpf -
 
 $(mathfiles): $(x).hthirdrun $(figps)
 	echo -n gifs= > $(mathfiles)
 	(cd $(mathdir); echo *.tex | sed -e "s/\.tex/.gif/g") >> $(mathfiles)
 
 $(x).hthirdrun: $(x).hsecondrun
-	$(Hprep) $(x)
+	$(Hprep) --mathdir $(mathdir) $(x)
 	chmod 444 *.html
 	touch $(x).hthirdrun
 
 $(x).hsecondrun: $(x).hfirstrun
-	$(Hprep) $(x)
+	$(Hprep) --mathdir $(mathdir) $(x)
 	chmod 444 *.html
 	touch $(x).hsecondrun
 
 $(x).hfirstrun: math $(x).thirdrun
 	(if [ ! -e $(mathdir) ] ; then mkdir -p -m u=rwx,g=srx,o=rx $(mathdir); ln -s ../Makefile ../mathmacros $(mathdir); fi)
-	$(Hprep) $(x)
+	$(Hprep) --mathdir $(mathdir) $(x)
 	touch $(x).hfirstrun
 
 spell: $(spellobj)
