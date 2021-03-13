@@ -131,9 +131,9 @@ class assignments, and various other documents.
 
 
 <p>
-A prerequisite to building and using stex is to have Chez Scheme or
-Petite Chez Scheme installed on your system.
-You'll also need pdflatex, dvips, ghostscript, and netbpm.
+A prerequisite to building and using stex is to have Chez Scheme
+installed on your system.
+You'll also need pdflatex, dvips, ghostscript, and netpbm.
 We've run stex under Linux and OS X but have not tried to run it under
 Windows.
 
@@ -144,22 +144,37 @@ and run make:
 
 <p>
 
-<p><tt>make&nbsp;BIN=<i>bindir</i></tt>
-<p>where <tt><i>bindir</i></tt> is the directory where make will find the scheme or
-petite executables.
+<p><tt>make&nbsp;Scheme=<i>schemepath</i></tt>
+<p>where <tt><i>schemepath</i></tt> is the path to the scheme executable.
 
 <p>
 This will create a subdirectory, named for the installed Chez Scheme
 machine type, containing binary versions of the programs.
 
 <p>
-You can also use "make install" to make stex available for other users.
+You can also use "make install" to make stex available for other users:
 
 <p>
 
-<p><tt>sudo&nbsp;make&nbsp;install&nbsp;BIN=<i>bindir</i>&nbsp;LIB=<i>libdir</i></tt>
-<p>where <tt><i>bindir</i></tt> is as described above, and <tt><i>libdir</i></tt> is the
+<p><tt>sudo&nbsp;make&nbsp;install&nbsp;Scheme=<i>schemepath</i>&nbsp;LIB=<i>libdir</i></tt>
+<p>where <tt><i>schemepath</i></tt> is as described above, and <tt><i>libdir</i></tt> is the
 directory where the stex library directory should be installed.
+
+<p>
+As a convenience, you may more succinctly run:
+
+<p>
+
+<p><tt>sudo&nbsp;make&nbsp;install&nbsp;PREFIX=<i>prefixdir</i></tt>
+<p>where <tt><i>prefixdir</i></tt> specifies in one shot the tree under which
+the Scheme executable is installed and
+under which the stex library should be installed.
+This concise invocation is equivalent to:
+
+<p>
+
+<p><tt>sudo&nbsp;make&nbsp;install&nbsp;Scheme=<i>prefixdir</i>/bin/scheme&nbsp;LIB=<i>prefixdir</i>/lib/stex<i>version</i></tt>
+<p>where <tt><i>version</i></tt> is the stex version number.
 
 <p>
 

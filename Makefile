@@ -44,7 +44,7 @@ install: $(exec)
 	$(Install) -o root -g root -m 755 -d $(LIB)/math
 	$(Install) -o root -g root -m 644 math/* $(LIB)/math
 	$(Install) -o root -g root -m 755 -d $(LIB)/$m
-	$(Install) -o root -g root -m 644 $(exec) $(LIB)/$m
+	$(Install) -o root -g root -m 755 $(exec) $(LIB)/$m
 	(umask 022; sed -e 's;^LIB=.*;LIB=$(LIB);' Mf-stex > $(LIB)/Mf-stex)
 	(umask 022; sed -e 's;include ~/stex/Mf-stex;include $(LIB)/Mf-stex;' Makefile.template > $(LIB)/Makefile.template)
 
