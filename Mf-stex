@@ -3,6 +3,9 @@
 #  STEXLIB  the path to the stex library (the library containing this file)
 
 m := $(shell echo '(machine-type)' | $(Scheme) -q)
+ifeq ("$m","")
+  $(error cannot determine machine-type for Scheme=$(Scheme))
+endif
 
 TEXINPUTS:=.:$(STEXLIB)/inputs:
 export TEXINPUTS

@@ -10,6 +10,9 @@ Scheme=$(PREFIX)/bin/scheme
 LIB=$(PREFIX)/lib/stex$(VERSION)
 
 m := $(shell echo '(machine-type)' | $(Scheme) -q)
+ifeq ("$m","")
+  $(error cannot determine machine-type for Scheme=$(Scheme))
+endif
 
 Install=./sbin/install
 
