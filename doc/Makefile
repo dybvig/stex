@@ -1,3 +1,7 @@
+VERSION=1.2
+Scheme=scheme
+STEXLIB=..
+
 # define default document pathname here
 # override on command line with 'make x=newdoc'
 x = stex
@@ -14,7 +18,7 @@ bib =
 # define index if an index is to be generated
 # index=yes
 
-include ~/stex/Mf-stex
+include $(STEXLIB)/Mf-stex
 
 # define or override suffixes here
 

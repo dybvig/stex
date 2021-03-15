@@ -60,9 +60,9 @@ class assignments, and various other documents.
 
 \section{Installation}
 
-A prerequisite to building and using stex is to have Chez Scheme or
-Petite Chez Scheme installed on your system.
-You'll also need pdflatex, dvips, ghostscript, and netbpm.
+A prerequisite to building and using stex is to have Chez Scheme
+installed on your system.
+You'll also need pdflatex, dvips, ghostscript, and netpbm.
 We've run stex under Linux and OS X but have not tried to run it under
 Windows.
 
@@ -71,23 +71,39 @@ stex directory into your home directory, cd into the stex directory,
 and run make:
 
 \schemedisplay
-make BIN=\var{bindir}
+make Scheme=\var{schemepath}
 \endschemedisplay
 
-where \var{bindir} is the directory where make will find the scheme or
-petite executables.
+where \var{schemepath} is the path to the scheme executable.
 
 This will create a subdirectory, named for the installed Chez Scheme
 machine type, containing binary versions of the programs.
 
-You can also use ``make install'' to make stex available for other users.
+You can also use ``make install'' to make stex available for other users:
 
 \schemedisplay
-sudo make install BIN=\var{bindir} LIB=\var{libdir}
+sudo make install Scheme=\var{schemepath} LIB=\var{libdir}
 \endschemedisplay
 
-where \var{bindir} is as described above, and \var{libdir} is the
+where \var{schemepath} is as described above, and \var{libdir} is the
 directory where the stex library directory should be installed.
+
+As a convenience, you may more succinctly run:
+
+\schemedisplay
+sudo make install PREFIX=\var{prefixdir}
+\endschemedisplay
+
+where \var{prefixdir} specifies in one shot the tree under which
+the Scheme executable is installed and
+under which the stex library should be installed.
+This concise invocation is equivalent to:
+
+\schemedisplay
+sudo make install Scheme=\var{prefixdir}/bin/scheme LIB=\var{prefixdir}/lib/stex\var{version}
+\endschemedisplay
+
+where \var{version} is the stex version number.
 
 \section{Usage notes}
 
