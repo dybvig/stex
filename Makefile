@@ -48,8 +48,8 @@ install: $(exec)
 	$(Install) -o root -g root -m 644 math/* $(LIB)/math
 	$(Install) -o root -g root -m 755 -d $(LIB)/$m
 	$(Install) -o root -g root -m 755 $(exec) $(LIB)/$m
-	(umask 022; sed -e 's;^LIB=.*;LIB=$(LIB);' Mf-stex > $(LIB)/Mf-stex)
-	(umask 022; sed -e 's;include ~/stex/Mf-stex;include $(LIB)/Mf-stex;' Makefile.template > $(LIB)/Makefile.template)
+	$(Install) -o root -g root -m 644 Mf-stex $(LIB)/Mf-stex
+	(umask 022; sed -e 's;^STEXLIB=.*;STEXLIB=$(LIB);' Makefile.template > $(LIB)/Makefile.template)
 
 uninstall:
 	/bin/rm -rf $(LIB)
