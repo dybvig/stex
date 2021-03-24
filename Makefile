@@ -1,5 +1,3 @@
-VERSION=1.2
-
 # override PREFIX, Scheme, and LIB as necessary
 PREFIX=/usr
 
@@ -7,7 +5,7 @@ PREFIX=/usr
 Scheme=$(PREFIX)/bin/scheme
 
 # target location for stex
-LIB=$(PREFIX)/lib/stex$(VERSION)
+LIB=$(PREFIX)/lib/stex$(shell head -n 1 src/VERSION)
 
 m := $(shell echo '(machine-type)' | $(Scheme) -q)
 ifeq ("$m","")
@@ -26,19 +24,19 @@ exec = $m/scheme-prep $m/html-prep $m/fixbibtex
 
 all: $(exec)
 
-$m/scheme-prep: src/dsm.ss src/preplib.ss src/script.ss src/scheme-prep.ss
+$m/scheme-prep: src/dsm.ss src/preplib.ss src/script.ss src/scheme-prep.ss src/VERSION
 	if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/scheme-prep.ss > $m/scheme-prep.ss
 	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/scheme-prep.ss") (compile-whole-program "$m/scheme-prep.wpo" "$m/scheme-prep")' | $(Scheme) -q
 	chmod 755 $m/scheme-prep
 
-$m/html-prep: src/dsm.ss src/preplib.ss src/script.ss src/html-prep.ss
+$m/html-prep: src/dsm.ss src/preplib.ss src/script.ss src/html-prep.ss src/VERSION
 	if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/html-prep.ss > $m/html-prep.ss
 	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/html-prep.ss") (compile-whole-program "$m/html-prep.wpo" "$m/html-prep")' | $(Scheme) -q
 	chmod 755 $m/html-prep
 
-$m/fixbibtex: src/script.ss src/fixbibtex.ss
+$m/fixbibtex: src/script.ss src/fixbibtex.ss src/VERSION
 	-if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/fixbibtex.ss > $m/fixbibtex.ss
 	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/fixbibtex.ss") (compile-whole-program "$m/fixbibtex.wpo" "$m/fixbibtex")' | $(Scheme) -q

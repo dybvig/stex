@@ -1,4 +1,3 @@
-VERSION=1.2
 Scheme=scheme
 STEXLIB=..
 

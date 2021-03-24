@@ -1933,6 +1933,7 @@
 
 (command-line-case (command-line)
   [((keyword --help)) (usage)]
+  [((keyword --version)) (version)]
   [((flags [--mathdir mathdir $ (math-directory mathdir)])
     filename* ...)
    (for-each go

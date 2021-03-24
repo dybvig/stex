@@ -1158,6 +1158,7 @@
 
 (command-line-case (command-line)
   [((keyword --help)) (usage)]
+  [((keyword --version)) (version)]
   [(filename* ...)
    (for-each go
      (let ([found (find-filename "scheme-prep.tex")])

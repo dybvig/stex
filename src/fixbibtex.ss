@@ -11,6 +11,7 @@
 (define fn
   (command-line-case (command-line)
     [((keyword --help)) (usage) (exit 1)]
+    [((keyword --version)) (version) (exit)]
     [(filename) filename]))
 
 (let ([s (call-with-port (open-input-file fn) get-string-all)])

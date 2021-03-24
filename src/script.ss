@@ -693,8 +693,14 @@
                                (cons #'cmdspeca
                                  (syntax->list #'(cmdspec ...))))]
                [body* #'((b1a b2a ...) (b1 b2 ...) ...)])
-           (with-implicit (k usage)
+           (with-implicit (k usage version)
              #`(let ([usage-proc #,(usage-printer all-cmdspec*)] [cl clexpr])
+                 (define (version)
+                   (printf "~a version ~a\n" (path-last (car cl))
+                     #,(parameterize ([source-directories (map car (library-directories))])
+                         (with-source-path #f "VERSION"
+                           (lambda (fn)
+                             (call-with-input-file fn get-line))))))
                  (let ([usage (lambda () (usage-proc cl))])
                    #,(with-syntax ([p (let f ([cmdspec* all-cmdspec*] [body* body*])
                                         (if (null? cmdspec*)
