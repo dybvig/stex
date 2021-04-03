@@ -442,8 +442,9 @@
 
   (define anchored-filename?
     (lambda (s)
-      (and (> (string-length s) 0)
-           (memv (string-ref s 0) '(#\/ #\.)))))
+      (or (path-absolute? s)
+          (and (> (string-length s) 0)
+               (eqv? (string-ref s 0) '#\.)))))
 
   (define find-filename
     (lambda (fn)
