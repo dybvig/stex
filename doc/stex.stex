@@ -87,6 +87,8 @@ sudo make install Scheme=\var{schemepath} LIB=\var{libdir}
 
 where \var{schemepath} is as described above, and \var{libdir} is the
 directory where the stex library directory should be installed.
+If \var{libdir} is writable by the current user, then \scheme{sudo}
+is not necessary.
 
 As a convenience, you may more succinctly run:
 

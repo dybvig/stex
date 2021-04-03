@@ -14,7 +14,13 @@ ifeq ("$m","")
   $(error cannot determine machine-type for Scheme=$(Scheme))
 endif
 
-Install=./sbin/install
+# installation owner
+InstallOwner:=$(shell whoami)
+
+# installation group
+InstallGroup:=${InstallOwner}
+
+Install=./sbin/install -o "${InstallOwner}" -g "${InstallGroup}"
 
 exec = $m/scheme-prep $m/html-prep $m/fixbibtex
 
@@ -39,23 +45,24 @@ $m/fixbibtex: src/fixbibtex.ss
 	chmod 755 $m/fixbibtex
 
 install: $(exec)
-	$(Install) -o root -g root -m 755 -d $(LIB)
-	$(Install) -o root -g root -m 755 -d $(LIB)/inputs
-	$(Install) -o root -g root -m 644 inputs/* $(LIB)/inputs
-	$(Install) -o root -g root -m 755 -d $(LIB)/gifs
-	$(Install) -o root -g root -m 644 gifs/* $(LIB)/gifs
-	$(Install) -o root -g root -m 755 -d $(LIB)/math
-	$(Install) -o root -g root -m 644 math/* $(LIB)/math
-	$(Install) -o root -g root -m 755 -d $(LIB)/$m
-	$(Install) -o root -g root -m 755 $(exec) $(LIB)/$m
-	$(Install) -o root -g root -m 644 Mf-stex $(LIB)/Mf-stex
-	(umask 022; sed -e 's;^STEXLIB=.*;STEXLIB=$(LIB);' Makefile.template > $(LIB)/Makefile.template)
+	$(Install) -m 755 -d $(LIB)
+	$(Install) -m 755 -d $(LIB)/inputs
+	$(Install) -m 644 inputs/* $(LIB)/inputs
+	$(Install) -m 755 -d $(LIB)/gifs
+	$(Install) -m 644 gifs/* $(LIB)/gifs
+	$(Install) -m 755 -d $(LIB)/math
+	$(Install) -m 644 math/* $(LIB)/math
+	$(Install) -m 755 -d $(LIB)/$m
+	$(Install) -m 755 $(exec) $(LIB)/$m
+	$(Install) -m 644 Mf-stex $(LIB)/Mf-stex
+	sed -e 's;^STEXLIB=.*;STEXLIB=$(LIB);' Makefile.template > Makefile.template.out
+	$(Install) -m 644 Makefile.template.out $(LIB)/Makefile.template
 
 uninstall:
 	/bin/rm -rf $(LIB)
 
 clean:
-	/bin/rm -f Make.out
+	/bin/rm -f Make.out Makefile.template.out
 
 distclean: clean
 	/bin/rm -rf $m

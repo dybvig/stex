@@ -9,7 +9,7 @@ endif
 
 TEXINPUTS:=.:$(STEXLIB)/inputs:
 export TEXINPUTS
- 
+
 ifeq ($(wildcard $(STEXLIB)/$m/scheme-prep),)
   Sprep = $(Scheme) --libdirs "$(STEXLIB)/src" --program $(STEXLIB)/src/scheme-prep.ss
 else
