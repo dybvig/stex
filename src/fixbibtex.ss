@@ -5,11 +5,13 @@
 ;;; fixbibtex removes the line breaks inserted by bibtex, sometimes
 ;;; in the middle of tex commands or urls.
 
-(import (chezscheme))
-(unless (= (length (command-line-arguments)) 1)
-  (printf "usage: fixbibtex <filename>\n")
-  (exit 1))
-(define fn (car (command-line-arguments)))
+#!chezscheme
+(import (chezscheme) (script))
+
+(define fn
+  (command-line-case (command-line)
+    [((keyword --help)) (usage) (exit 1)]
+    [(filename) filename]))
 
 (let ([s (call-with-port (open-input-file fn) get-string-all)])
   (with-input-from-string s

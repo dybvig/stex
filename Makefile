@@ -38,7 +38,7 @@ $m/html-prep: src/dsm.ss src/preplib.ss src/script.ss src/html-prep.ss
 	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/html-prep.ss") (compile-whole-program "$m/html-prep.wpo" "$m/html-prep")' | $(Scheme) -q
 	chmod 755 $m/html-prep
 
-$m/fixbibtex: src/fixbibtex.ss
+$m/fixbibtex: src/script.ss src/fixbibtex.ss
 	-if [ ! -d $m ] ; then mkdir $m ; fi
 	sed -e 's;^#! /usr/bin/scheme --program;#! $(Scheme) --program;' src/fixbibtex.ss > $m/fixbibtex.ss
 	echo '(reset-handler abort) (library-directories (quote "src::$m")) (compile-imported-libraries #t) (generate-wpo-files #t) (compile-program "$m/fixbibtex.ss") (compile-whole-program "$m/fixbibtex.wpo" "$m/fixbibtex")' | $(Scheme) -q
