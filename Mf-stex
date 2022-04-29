@@ -111,10 +111,12 @@ $(x).mathrun: gifs $(mathfiles)
 	touch $(x).mathrun
 
 gifs:
-	(cd $(STEXLIB); tar -cf - gifs) | tar -xpf -
+	(cd $(STEXLIB); tar -cf - --dereference gifs) | tar -xpf -
+	chmod u+w gifs
 
 math:
-	(cd $(STEXLIB); tar -cf - math) | tar -xpf -
+	(cd $(STEXLIB); tar -cf - --dereference math) | tar -xpf -
+	chmod u+w math
 
 $(mathfiles): $(x).hthirdrun $(figps)
 	echo -n gifs= > $(mathfiles)
