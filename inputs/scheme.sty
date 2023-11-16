@@ -54,3 +54,13 @@
 \def\beforeschemedisplay{\penalty-100\vskip\parskip\vskip5pt}
 \def\afterschemedisplay{\penalty-200\vskip5pt}
 
+% From test/screenshotter/test.tex in the KaTeX source code, which says:
+% > Based on LaTeX's definition of \LaTeX, with L changed to K and kerns
+% > changed as in src/macros.js
+\DeclareRobustCommand{\KaTeX}{\mbox{%
+K\kern-.17em%
+{\sbox0 T\vbox to\ht0{\hbox%
+  {\fontsize{.75em}{1em}\selectfont A}%
+\vss}}%
+\kern-.15em%
+\TeX}}

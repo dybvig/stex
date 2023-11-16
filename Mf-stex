@@ -28,6 +28,30 @@ else
   fixbibtex = $(STEXLIB)/$m/fixbibtex
 endif
 
+ifeq ($(origin KATEX), undefined)
+KATEX:=$(if $(shell command -v katex),katex,)
+endif
+ifneq ($(strip $(KATEX)),)
+  ifeq ($(strip $(KATEX_CSS)),)
+    # try to infer KATEX_CSS
+    katexrealpath:=$(realpath $(shell command -v $(KATEX)))
+    katexrealdir:=$(dir $(katexrealpath))
+    ifeq ($(katexrealpath),)
+      # can't infer; complain below
+    else ifneq ($(realpath $(katexrealdir)/dist/katex.css),)
+      # NPM installation layout (also release tarballs)
+      KATEX_CSS=$(katexrealdir)/dist/katex.css
+    else ifneq ($(realpath $(katexrealdir)/katex.css),)
+      # Debian installation layout
+      KATEX_CSS=$(katexrealdir)/katex.css
+    endif
+    ifeq ($(strip $(KATEX_CSS)),)
+      $(error cannot find KATEX_CSS for KATEX=$(KATEX))
+    endif
+  endif
+endif
+export KATEX KATEX_FLAGS
+
 mathdir=math/$(x)
 mathfiles=$(mathdir)/mathfiles
 
@@ -104,7 +128,30 @@ $(x).firstrun: $(texsrc)
 
 all.tex: $(texsrc)
 
+ifeq ($(strip $(KATEX)),)
 $(x).html: $(x).mathrun
+else
+$(x).hfourthrun: $(x).mathrun $(x).katex-css-link
+	$(Hprep) --mathdir $(mathdir) --use-katex --katex-finished --katex-css-link-file $(x).katex-css-link $(x)
+	chmod 444 *.html
+	touch $(x).hfourthrun
+
+# a project may supply one with content to override the default
+$(x).katex-css-link:
+	touch $(x).katex-css-link
+
+ifeq ($(strip $(KATEX_CSS)),no)
+$(x).html: $(x).hfourthrun
+else
+$(x).html: $(x).hfourthrun katex
+
+katex:
+	mkdir -p katex
+	cp $(KATEX_CSS) katex/katex.css
+	(cd katex; (cd $(dir $(KATEX_CSS)); tar -cf - --dereference fonts) | tar -xpf -)
+	chmod u+w katex/katex.css katex/fonts
+endif
+endif
 
 $(x).mathrun: gifs $(mathfiles)
 	@(cd $(mathdir); make)
@@ -121,20 +168,22 @@ math:
 $(mathfiles): $(x).hthirdrun $(figps)
 	echo -n gifs= > $(mathfiles)
 	(cd $(mathdir); echo *.tex | sed -e "s/\.tex/.gif/g") >> $(mathfiles)
+	echo -n htmls= >> $(mathfiles)
+	(cd $(mathdir); echo *.katex | sed -e "s/\.katex/.html/g") >> $(mathfiles)
 
 $(x).hthirdrun: $(x).hsecondrun
-	$(Hprep) --mathdir $(mathdir) $(x)
+	$(Hprep) --mathdir $(mathdir) $(if $(strip $(KATEX)),--use-katex,) $(x)
 	chmod 444 *.html
 	touch $(x).hthirdrun
 
 $(x).hsecondrun: $(x).hfirstrun
-	$(Hprep) --mathdir $(mathdir) $(x)
+	$(Hprep) --mathdir $(mathdir) $(if $(strip $(KATEX)),--use-katex,) $(x)
 	chmod 444 *.html
 	touch $(x).hsecondrun
 
 $(x).hfirstrun: math $(x).thirdrun
-	(if [ ! -e $(mathdir) ] ; then mkdir -p -m u=rwx,g=srx,o=rx $(mathdir); ln -s ../Makefile ../mathmacros $(mathdir); fi)
-	$(Hprep) --mathdir $(mathdir) $(x)
+	(if [ ! -e $(mathdir) ] ; then mkdir -p -m u=rwx,g=srx,o=rx $(mathdir); ln -s ../Makefile ../mathmacros ../katexmacros $(mathdir); fi)
+	$(Hprep) --mathdir $(mathdir) $(if $(strip $(KATEX)),--use-katex,) $(x)
 	touch $(x).hfirstrun
 
 spell: $(spellobj)
@@ -145,7 +194,7 @@ $(x).spell: $(x).bbl $(x).tex
 
 clean: $(x).clean
 	-/bin/rm -f *.log *.dvi *.aux *.out *.toc *.tmp *.idx *.ilg *.ind *.blg *.bbl *.rfm *.sfm *.firstrun *.secondrun *.thirdrun
-	-/bin/rm -f *.haux *.htoc *.hidx *.hfirstrun *.hsecondrun *.hthirdrun *.mathrun
+	-/bin/rm -f *.haux *.htoc *.hidx *.hfirstrun *.hsecondrun *.hthirdrun *.mathrun *.hfourthrun
 	-/bin/rm -f *.tex
 
 reallyclean: clean $(x).reallyclean

@@ -1,0 +1,11 @@
+gifs/
+math/
+*.tex
+*.log
+*[.h]aux
+*[.h]toc
+*[.h]firstrun
+*[.h]secondrun
+*[.h]thirdrun
+*.hfourthrun
+*.mathrun

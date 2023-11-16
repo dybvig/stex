@@ -18,7 +18,8 @@
 \def\scheme#1{{\tt #1}}
 \def\longcode\schemedisplay{\schemedisplay}
 \def\noskip\schemedisplay{\schemedisplay}
-\def\schemedisplay{\par\begingroup\tt\hardspaces}
+\def\schemedisplay{\begingroup\renewcommand{\par}{\raw{
+<p class="schemedisplay">}}\par\endgroup\begingroup\tt\hardspaces}
 \def\endschemedisplay{\endgroup\par}
 \def\schemeindent{}
 \def\schatsign{\raw{@}}
@@ -31,7 +32,7 @@
 \def\schunderscore{\raw{_}}
 \def\becomes{$\rightarrow$}
 \def\is{$\Rightarrow$}
-\def\si{\raw{<img src="gifs/ghostRightarrow.gif">}}
+\def\si{\schemeghostRightarrow} % handled specially by html-prep
 \def\var#1{\emph{#1}}
 
 % frame="border" rules="all" makes mozilla do it right
@@ -40,3 +41,10 @@
 \def\endrepl{\raw{</td>}}
 \def\startinteraction{\raw{<td align="right"><table rules="all" border="1"><tr><td>}}
 \def\endinteraction{\raw{</td></tr></table></td></tr></table>}}
+
+% This seemingly circular definition works because the \KaTeX inside
+% math mode is expanded with a different definition: either the
+% primitive from KaTeX or, if rendering without KaTeX, the definition
+% from scheme.sty.
+\def\KaTeX{$\mbox{\KaTeX}$}
+\def\LaTeX{$\mbox{\LaTeX}$}

@@ -1,0 +1,22 @@
+<!--
+    A built copy of stex.html is checked in to the Git repository, and it
+    ought to be readable without having to install or use stex (since it tells
+    you how to do that). However, checking in the fonts needed for KaTeX would
+    roughly double the size of the stex repository, even though the fonts are
+    not especially large in absolute terms.
+
+    Instead, this file overrides the default link to katex.css to load it, and
+    the fonts it uses, externally.  The `KATEX_CSS=no` line in the makefile
+    accordingly instructs stex not to copy the CSS and fonts into the build.
+
+    Under other circumstances, the default behavior of stex is preferrable: in
+    particular, it ensures that the version of katex.css matches the version
+    of KaTeX used to typeset the document.
+
+    Another option would be to define `KATEX_FLAGS=--format mathml` and rely
+    solely on the native support in recent browsers and operating systems.
+-->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.css"
+      integrity="sha384-OH8qNTHoMMVNVcKdKewlipV4SErXqccxxlg6HC9Cwjr5oZu2AdBej1TndeCirael"
+      crossorigin="anonymous" />
