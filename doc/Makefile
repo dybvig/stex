@@ -17,6 +17,9 @@ bib =
 # define index if an index is to be generated
 # index=yes
 
+# override katex variables here if desired
+KATEX_CSS=no # see comment in stex.katex-css-link
+
 include $(STEXLIB)/Mf-stex
 
 # define or override suffixes here

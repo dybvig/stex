@@ -14,6 +14,9 @@ a.image:link, a.image:active, a.image:visited, a.image:hover {
   background: #FFFFFF;
 }
 
+.schemedisplay { line-height: 1.0625; }
+.schemedisplay .katex { font-size: 1em; }
+
 ul.tocchapter { list-style: none; }
 ul.tocsection { list-style: circle; color: #923a3a }
 

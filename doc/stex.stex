@@ -42,20 +42,20 @@ items, such as make files, make-file templates, class files, and style
 files.
 The two main programs are \textbf{scheme-prep} and \textbf{html-prep}.
 \textbf{scheme-prep} performs a conversion from ``stex''-formatted files
-into latex-formatted files, while \textbf{html-prep} converts (some)
-latex-formatted files into html-formatted files.
+into \LaTeX-formatted files, while \textbf{html-prep} converts (some)
+\LaTeX-formatted files into html-formatted files.
 
-An stex file is really just a latex file extended with a handful of
+An stex file is really just a \LaTeX\ file extended with a handful of
 commands for including Scheme code (or pretty much any other kind of code,
 as long as you don't plan to use the Scheme-specific transcript support)
 in a document, plus a couple of additional features rather arbitrarily
 thrown in.
 
-The subset of latex-formatted files \textbf{html-prep} is capable of
+The subset of \LaTeX-formatted files \textbf{html-prep} is capable of
 handling is rather small but has nevertheless been useful for our
 purposes, which include producing html versions of a couple of books
 (\emph{The Scheme Programming Language}, Editions 2--4 and the Chez Scheme
-User's Guides for Versions 6--9), the scheme.com web site, class websites,
+User's Guides for Versions 6--10), the scheme.com web site, class websites,
 class assignments, and various other documents.
 
 \section{Installation}
@@ -63,6 +63,8 @@ class assignments, and various other documents.
 A prerequisite to building and using stex is to have Chez Scheme
 installed on your system.
 You'll also need pdflatex, dvips, ghostscript, and netpbm.
+Additionally, you may want to have \KaTeX\ installed: see ``Math in HTML''
+below.
 We've run stex under Linux and OS X but have not tried to run it under
 Windows.
 
@@ -617,5 +619,61 @@ a & b & c & d \\
 12345 & z & \multicolumn{2}{l}{\scheme{(define x "foo")}}
 \end{tabular}
 \end{quotation}
+
+\section{Math in HTML}
+
+A few very simple uses of \LaTeX's math mode are converted to HTML directly by
+\textbf{html-prep}. For typesetting non-trivial math, there are two strategies
+available:
+
+\begin{enumerate}
+  \item Originally, stex used \LaTeX\ to render math to GIF images.
+  \item Optionally, stex can use \KaTeX, which generates MathML and/or HTML.
+\end{enumerate}
+
+Using \KaTeX\ makes the rendered math accessible to assistive technologies,
+CSS, and other browser features. It also tends to look better than math in
+GIFs.  However, a few features that stex supports when rendering to GIFs,
+notably including \scheme{\epsfbox\schlbrace\schrbrace} and the
+\scheme{eqnarray*} environment, are not currently supported when rendering with
+\KaTeX.
+
+By default, stex will use \KaTeX\ if the ``katex'' command is found; otherwise,
+it will automatically fall back to generating GIFs. To prevent stex from using
+\KaTeX\ even if it is available, use \scheme{make KATEX=} or define
+\scheme{KATEX} as empty in your makefile before including Mf-stex. The same
+mechanisms can be used to supply a non-default ``katex'' command or even to
+require that \KaTeX\ be present, e.g.\ by writing:
+
+\begin{quotation}
+\begin{verbatim}
+KATEX:=$(if $(shell command -v katex),katex,$(error katex not found))
+\end{verbatim}
+\end{quotation}
+
+The variable \scheme{KATEX_FLAGS} may be used to supply additional options for
+\KaTeX.
+
+The output of \KaTeX\ requires supporting CSS and font files. (Notably, it does
+not require JavaScript. It is also possible to supply non-default options to
+create output that can work without CSS and fonts by relying solely on the
+native support for MathML in recent browsers and operating systems.) By
+default, stex will attempt to find these files relative to the ``katex''
+command, and it should be able to handle the installation layouts used by both
+Node.js and Debian. If the files cannot be found automatically, you will need
+to define \scheme{KATEX_CSS}, either at the command line or in your makefile
+(before including Mf-stex): likely values include
+``./node\_modules/katex/dist/katex.css'' and
+``/usr/share/javascript/katex/katex.css''.
+
+By default, stex copies the needed CSS and font files into a directory named
+``katex'' alongside the generated HTML files: when using \KaTeX, you need to
+install this directory or upload it to your web server.
+
+As a special case, defining \scheme{KATEX_CSS=no} instructs stex not to copy
+these files. If you use this option, you may also want to override the default
+HTML \scheme{link} element used to load the CSS by creating a non-empty file
+with the base name of your document and the extension ``.katex-css-link'': for
+an example, see the ``stex.katex-css-link'' file used for this document.
 
 \end{document}
